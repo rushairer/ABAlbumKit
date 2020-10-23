@@ -18,12 +18,6 @@
 		C70E4526254337230036D7AE /* AlbumView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C70E4525254337230036D7AE /* AlbumView.swift */; };
 		C70E4570254338290036D7AE /* ABAlbumKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C70E456C254338290036D7AE /* ABAlbumKit.framework */; };
 		C70E4571254338290036D7AE /* ABAlbumKit.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = C70E456C254338290036D7AE /* ABAlbumKit.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
-		C70E4572254338290036D7AE /* ABSwiftKitExtension.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C70E456D254338290036D7AE /* ABSwiftKitExtension.framework */; };
-		C70E4573254338290036D7AE /* ABSwiftKitExtension.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = C70E456D254338290036D7AE /* ABSwiftKitExtension.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
-		C70E4574254338290036D7AE /* ASCollectionView.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C70E456E254338290036D7AE /* ASCollectionView.framework */; };
-		C70E4575254338290036D7AE /* ASCollectionView.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = C70E456E254338290036D7AE /* ASCollectionView.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
-		C70E4576254338290036D7AE /* DifferenceKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C70E456F254338290036D7AE /* DifferenceKit.framework */; };
-		C70E4577254338290036D7AE /* DifferenceKit.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = C70E456F254338290036D7AE /* DifferenceKit.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -50,9 +44,6 @@
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
-				C70E4573254338290036D7AE /* ABSwiftKitExtension.framework in Embed Frameworks */,
-				C70E4575254338290036D7AE /* ASCollectionView.framework in Embed Frameworks */,
-				C70E4577254338290036D7AE /* DifferenceKit.framework in Embed Frameworks */,
 				C70E4571254338290036D7AE /* ABAlbumKit.framework in Embed Frameworks */,
 			);
 			name = "Embed Frameworks";
@@ -87,9 +78,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				C70E4572254338290036D7AE /* ABSwiftKitExtension.framework in Frameworks */,
-				C70E4574254338290036D7AE /* ASCollectionView.framework in Frameworks */,
-				C70E4576254338290036D7AE /* DifferenceKit.framework in Frameworks */,
 				C70E4570254338290036D7AE /* ABAlbumKit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
