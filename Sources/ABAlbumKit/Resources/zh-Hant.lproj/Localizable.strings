@@ -1,0 +1,14 @@
+/* 
+  Localizable.strings
+  ABAlbumKit
+
+  Created by Abenx on 2020/10/18.
+  
+*/
+
+"Album" = "相簿";
+"Unable to access photos in album" = "無法存取相簿中的照片";
+"No access to photos. Go to system setting and allow %@ to access all photos in album." = "目前無照片訪問權限，建議前往系統設定，允許%@存取『照片』中的『所有照片』。";
+"Go to system settings" = "前往系統設定";
+"No Photos" = "沒有照片";
+"Go back" = "後退";

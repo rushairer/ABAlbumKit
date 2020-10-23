@@ -1,0 +1,14 @@
+/* 
+  Localizable.strings
+  ABAlbumKit
+
+  Created by Abenx on 2020/10/18.
+  
+*/
+
+"Album" = "Album";
+"Unable to access photos in album" = "Unable to access photos in album";
+"No access to photos. Go to system setting and allow %@ to access all photos in album." = "No access to photos. Go to system setting and allow %@ to access all photos in album.";
+"Go to system settings" = "Go to system settings";
+"No Photos" = "No Photos";
+"Go back" = "Go back";
