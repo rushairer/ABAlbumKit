@@ -135,10 +135,10 @@
 		C70B70F42543367500999C4E /* ABAlbumKitExample */ = {
 			isa = PBXGroup;
 			children = (
-				C70E4525254337230036D7AE /* AlbumView.swift */,
 				C70B70F52543367500999C4E /* AppDelegate.swift */,
 				C70B70F72543367500999C4E /* SceneDelegate.swift */,
 				C70B70F92543367500999C4E /* ContentView.swift */,
+				C70E4525254337230036D7AE /* AlbumView.swift */,
 				C70B70FB2543367700999C4E /* Assets.xcassets */,
 				C70B71002543367700999C4E /* LaunchScreen.storyboard */,
 				C70B71032543367700999C4E /* Info.plist */,

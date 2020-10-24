@@ -37,9 +37,24 @@ struct AlbumView: View {
     
     var body: some View {
         ABAlbumView(leading: self.backButton,
-                    trailing: self.cameraButton)
-            .navigationBarBackButtonHidden(true)
-            .environmentObject(self.albumViewModel)
+                    trailing: self.cameraButton,
+                    contextMenuProvider: { index, asset -> UIContextMenuConfiguration? in
+                        let configuration = UIContextMenuConfiguration(identifier: nil, previewProvider: nil) { (_) -> UIMenu? in
+                            let testAction = UIAction(title: "Do nothing") { _ in
+                                //
+                            }
+                            let testAction2 = UIAction(title: "Do something") { _ in
+                                //
+                            }
+                            return UIMenu(title: "", image: nil, identifier: nil, options: [], children: [testAction, testAction2])
+                        }
+                        return configuration
+                    },
+                    assetSelectedHandler: { asset in
+                        print(asset.localIdentifier)
+                    })
+        .navigationBarBackButtonHidden(true)
+        .environmentObject(self.albumViewModel)
     }
     
 }
