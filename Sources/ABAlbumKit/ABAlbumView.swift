@@ -3,30 +3,62 @@ import ABSwiftKitExtension
 import ASCollectionView
 import Photos
 
+public typealias AssetSelectedHandler<PHAsset> = ((PHAsset) -> Void)
+
 public struct ABAlbumView: View {
     @EnvironmentObject var albumViewModel: ABAlbumViewModel
     @Environment(\.presentationMode) var presentationMode
     @State private var assets: [PHAsset] = []
     @State var showsAlbumList = false
     
+    private typealias SectionID = Int
+
     private var leading: AnyView?
     private var trailing: AnyView?
-    private typealias SectionID = Int
     
-    public init() {
+    private var contextMenuProvider: ContextMenuProvider<PHAsset>?
+    private var assetSelectedHandler: AssetSelectedHandler<PHAsset>?
+    
+    public init(contextMenuProvider: ContextMenuProvider<PHAsset>? = nil,
+                assetSelectedHandler: AssetSelectedHandler<PHAsset>? = nil) {
+        self.initHandlers(contextMenuProvider, assetSelectedHandler)
     }
     
-    public init<L: View, T: View>(leading: L, trailing: T) {
+    public init<L: View, T: View>(leading: L,
+                                  trailing: T,
+                                  contextMenuProvider: ContextMenuProvider<PHAsset>? = nil,
+                                  assetSelectedHandler: AssetSelectedHandler<PHAsset>? = nil) {
         self.leading = AnyView(leading)
         self.trailing = AnyView(trailing)
+        
+        self.initHandlers(contextMenuProvider, assetSelectedHandler)
     }
     
-    public init<L: View>(leading: L) {
+    public init<L: View>(leading: L,
+                         contextMenuProvider: ContextMenuProvider<PHAsset>? = nil,
+                         assetSelectedHandler: AssetSelectedHandler<PHAsset>? = nil) {
         self.leading = AnyView(leading)
+        
+        self.initHandlers(contextMenuProvider, assetSelectedHandler)
     }
     
-    public init<T: View>(trailing: T) {
+    public init<T: View>(trailing: T,
+                         contextMenuProvider: ContextMenuProvider<PHAsset>? = nil,
+                         assetSelectedHandler: AssetSelectedHandler<PHAsset>? = nil) {
         self.trailing = AnyView(trailing)
+        
+        self.initHandlers(contextMenuProvider, assetSelectedHandler)
+    }
+    
+    private mutating func initHandlers(_ contextMenuProvider: ContextMenuProvider<PHAsset>? = nil,
+                                       _ assetSelectedHandler: AssetSelectedHandler<PHAsset>? = nil) {
+        if contextMenuProvider != nil {
+            self.contextMenuProvider = contextMenuProvider
+        }
+        
+        if assetSelectedHandler != nil {
+            self.assetSelectedHandler = assetSelectedHandler
+        }
     }
     
     public var body: some View {
@@ -158,8 +190,12 @@ extension ABAlbumView
             id: 0,
             data: self.assets,
             dataID: \.self,
-            onCellEvent: self.onCellEvent) { asset, _ in
-            ABAlbumCellView(asset: asset)
+            onCellEvent: self.onCellEvent,
+            contextMenuProvider: self.contextMenuProvider) { asset, _ in
+            ABAlbumCellView(asset: asset).onTapGesture {
+                guard self.assetSelectedHandler != nil else { return }
+                self.assetSelectedHandler!(asset)
+            }
         }
     }
     
@@ -187,7 +223,6 @@ extension ABAlbumView
             break;
         }
     }
-    
     
     private func cellNumber() -> CGFloat {
         guard let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene, windowScene.activationState == .foregroundActive || windowScene.activationState == .background, let _ = windowScene.windows.first else { return 3.0 }
