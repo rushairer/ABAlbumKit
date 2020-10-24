@@ -15,7 +15,7 @@ public final class ABAlbumViewModel: ObservableObject {
         get {
             let option = PHFetchOptions()
             if self.mediaType != PHAssetMediaType.unknown {
-                option.predicate = NSPredicate(format: "mediaType == %ld", PHAssetMediaType.image.rawValue)
+                option.predicate = NSPredicate(format: "mediaType == %ld", self.mediaType.rawValue)
             }
             option.sortDescriptors = [NSSortDescriptor(key: "creationDate", ascending: false)]
             
