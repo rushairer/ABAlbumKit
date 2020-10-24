@@ -9,29 +9,39 @@ import SwiftUI
 import ABAlbumKit
 
 struct AlbumView: View {
-    @Environment(\.presentationMode) var presentationMode
+    @Environment(\.presentationMode) var presentationMode: Binding<PresentationMode>
+    
     private var albumViewModel = ABAlbumViewModel()
     
-    var body: some View {
-        let backButton = Button (action: {
+    public init() {
+        print("Init AlbumView")
+    }
+    
+    var backButton: some View {
+        Button (action: {
             self.presentationMode.wrappedValue.dismiss()
         }) {
             Image(systemName: "chevron.left")
                 .padding()
         }
-        
-        let cameraButton = Button (action: {
+    }
+    
+    var cameraButton: some View {
+        Button (action: {
             
         }) {
             Image(systemName: "camera.fill")
                 .padding()
         }
-        
-        ABAlbumView(leading: backButton,
-                    trailing: cameraButton)
+    }
+    
+    var body: some View {
+        ABAlbumView(leading: self.backButton,
+                    trailing: self.cameraButton)
             .navigationBarBackButtonHidden(true)
             .environmentObject(self.albumViewModel)
     }
+    
 }
 
 struct AlbumView_Previews: PreviewProvider {

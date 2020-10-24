@@ -21,14 +21,10 @@ struct ContentView: View {
                     }
                 }
             }
-            .listStyle(
-                GroupedListStyle()
-            )
+            .listStyle(GroupedListStyle())
             .navigationBarTitle(Text("ABAlbumKit Example"))
         }
-        .navigationViewStyle(
-            StackNavigationViewStyle()
-        )
+        .navigationViewStyle(StackNavigationViewStyle())
     }
 }
 

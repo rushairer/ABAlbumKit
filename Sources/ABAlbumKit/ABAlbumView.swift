@@ -3,43 +3,15 @@ import ABSwiftKitExtension
 import ASCollectionView
 import Photos
 
-extension ABAlbumView
-{
-    var layout: ASCollectionLayout<Int>
-    {
-        ASCollectionLayout(scrollDirection: .vertical, interSectionSpacing: 0)
-        {
-            ASCollectionLayoutSection
-            {
-                let gridBlockSize = NSCollectionLayoutDimension.fractionalWidth(1 / 3.0)
-                let item = NSCollectionLayoutItem(
-                    layoutSize: NSCollectionLayoutSize(
-                        widthDimension: gridBlockSize,
-                        heightDimension: .fractionalHeight(1.0)))
-                let inset = CGFloat(1)
-                item.contentInsets = NSDirectionalEdgeInsets(top: inset, leading: inset, bottom: inset, trailing: inset)
-                
-                let itemsGroup = NSCollectionLayoutGroup.horizontal(
-                    layoutSize: NSCollectionLayoutSize(
-                        widthDimension: .fractionalWidth(1.0),
-                        heightDimension: gridBlockSize),
-                    subitems: [item])
-                
-                let section = NSCollectionLayoutSection(group: itemsGroup)
-                return section
-            }
-        }
-    }
-}
-
 public struct ABAlbumView: View {
-    @State var isReady = false
-    @State var showsAlbumList = false
     @EnvironmentObject var albumViewModel: ABAlbumViewModel
     @Environment(\.presentationMode) var presentationMode
+    @State private var assets: [PHAsset] = []
+    @State var showsAlbumList = false
     
     private var leading: AnyView?
     private var trailing: AnyView?
+    private typealias SectionID = Int
     
     public init() {
     }
@@ -57,49 +29,44 @@ public struct ABAlbumView: View {
         self.trailing = AnyView(trailing)
     }
     
-    private typealias SectionID = Int
-    
-    private var section: ASCollectionViewSection<SectionID> {
-        let assets = self.albumViewModel.getPhotoAssetsFromSelectedAlbum()
-        return ASCollectionViewSection(
-            id: 0,
-            data: assets,
-            dataID: \.self,
-            onCellEvent: self.onCellEvent) { asset, _ in
-            ABAlbumCellView(asset: asset)
-        }
-    }
-    
-    private func onCellEvent(_ event: CellEvent<PHAsset>)
-    {
-        switch event
-        {
-        case .onAppear(_):
-            break;
-        case .onDisappear(_):
-            break;
-        case let .prefetchForData(data):
-            let maxLength = UIScreen.main.scale * 80.0
-            let targetSize = CGSize(width: maxLength, height: maxLength)
-            let option = PHImageRequestOptions()
-            option.resizeMode = .fast
-            option.isSynchronous = true
-            option.deliveryMode = .highQualityFormat
-            option.isNetworkAccessAllowed = true
+    public var body: some View {
+        GeometryReader { geometry in
+            Color(.systemBackground)
+                .navigationBarTitle(Text(""), displayMode: .inline)
+                .navigationBarItems(
+                    leading:
+                        self.navbarView
+                        .frame(width: geometry.size.width)
+                )
+            ZStack(alignment: .top) {
+                self.gridView
+                    .onReceive(self.albumViewModel.$selectedAlbumIndex) { index in
+                        DispatchQueue.main.async {
+                            self.assets = self.albumViewModel.getPhotoAssetsFromSelectedAlbum()
+                            self.showsAlbumList = false
+                        }
+                    }
+                
+                self.maskView
+                ABAlbumListView()
+                    .frame(width: geometry.size.width, height: geometry.size.height * 0.75, alignment: .center)
+                    .offset(x: 0, y: self.showsAlbumList ? 0 : -geometry.size.height * 0.75 - geometry.safeAreaInsets.top)
+                    .animation(.easeInOut, value: self.showsAlbumList)
+            }
+            .modifier(HiddenModifier(isHidden: !self.albumViewModel.isAuthorized))
             
-            (PHCachingImageManager.default() as! PHCachingImageManager).allowsCachingHighQualityImages = false
-            (PHCachingImageManager.default() as! PHCachingImageManager).startCachingImages(for: data, targetSize: targetSize, contentMode: .default, options: option)
-            
-            break;
-        case .cancelPrefetchForData(_):
-            break;
+            self.emptyView
+                .modifier(HiddenModifier(isHidden: self.albumViewModel.isAuthorized))
         }
+        .environmentObject(self.albumViewModel)
+        .foregroundColor(.primary)
     }
-    
+}
+
+extension ABAlbumView
+{
     private var gridView: some View {
-        let assets = self.albumViewModel.getPhotoAssetsFromSelectedAlbum()
-        
-        if assets.count == 0 {
+        if self.assets.count == 0 {
             return AnyView(Color
                             .clear
                             .overlay(Text("No Photos")))
@@ -110,7 +77,7 @@ public struct ABAlbumView: View {
     }
     
     private var maskView: some View {
-        Color.black.opacity(self.showsAlbumList ? 0.6 : 0).onTapGesture{
+        Color.black.opacity(self.showsAlbumList ? 0.8 : 0).onTapGesture {
             withAnimation {
                 self.showsAlbumList.toggle()
             }
@@ -167,19 +134,21 @@ public struct ABAlbumView: View {
                         self.showsAlbumList.toggle()
                     }
                 }) {
-                    Text("Album")
+                    Text(self.albumViewModel.selectedAlbum()?.title ?? "Album")
+                        .animation(nil)
                     Image(systemName: "chevron.down.circle.fill")
+                        .foregroundColor(Color(.secondaryLabel))
                         .rotationEffect(Angle(degrees: self.showsAlbumList ? 180 : 0), anchor: .center)
-                        .animation(.easeInOut(duration: 0.2), value: self.showsAlbumList)
+                        .animation(.easeInOut, value: self.showsAlbumList)
                 }
+                .animation(.easeOut, value: self.albumViewModel.selectedAlbumIndex)
                 .padding(EdgeInsets(top: 4, leading: 10, bottom: 4, trailing: 10))
                 .background(ABAlbumVisualEffectBlurView(blurStyle: .systemChromeMaterial, vibrancyStyle: .secondaryFill) {Color.secondary})
                 .clipRounded(.xxl)
-                
             }
             .pickerStyle(SegmentedPickerStyle())
             .modifier(HiddenModifier(isHidden: !self.albumViewModel.isAuthorized))
-
+            
             Spacer()
             if self.trailing != nil {
                 self.trailing
@@ -187,33 +156,85 @@ public struct ABAlbumView: View {
         }
     }
     
-    public var body: some View {
-        GeometryReader { geometry in
-            Color(.systemBackground)
-                .navigationBarTitle(Text(""), displayMode: .inline)
-                .navigationBarItems(
-                    leading:
-                        navbarView
-                        .frame(width: geometry.size.width)
-                )
-            gridView
-                .modifier(HiddenModifier(isHidden: !self.albumViewModel.isAuthorized))
-            
-            maskView
-                .modifier(HiddenModifier(isHidden: !self.albumViewModel.isAuthorized))
-            ABAlbumListView()
-                .modifier(HiddenModifier(isHidden: !self.albumViewModel.isAuthorized))
-                .frame(width: geometry.size.width, height: geometry.size.height * 0.75, alignment: .center)
-                .offset(x: 0, y: self.showsAlbumList ? 0 : -geometry.size.height * 0.75 - geometry.safeAreaInsets.top)
-                .animation(.easeInOut(duration: 0.2), value: self.showsAlbumList)
-            emptyView
-                .modifier(HiddenModifier(isHidden: self.albumViewModel.isAuthorized))
-            
+    private var section: ASCollectionViewSection<SectionID> {
+        ASCollectionViewSection(
+            id: 0,
+            data: self.assets,
+            dataID: \.self,
+            onCellEvent: self.onCellEvent) { asset, _ in
+            ABAlbumCellView(asset: asset)
         }
-        .environmentObject(self.albumViewModel)
-        .foregroundColor(.primary)
+    }
+    
+    private func onCellEvent(_ event: CellEvent<PHAsset>) {
+        switch event
+        {
+        case .onAppear(_):
+            break;
+        case .onDisappear(_):
+            break;
+        case let .prefetchForData(data):
+            let maxLength = UIScreen.main.scale * 80.0
+            let targetSize = CGSize(width: maxLength, height: maxLength)
+            let option = PHImageRequestOptions()
+            option.resizeMode = .fast
+            option.isSynchronous = true
+            option.deliveryMode = .highQualityFormat
+            option.isNetworkAccessAllowed = true
+            
+            (PHCachingImageManager.default() as! PHCachingImageManager).allowsCachingHighQualityImages = false
+            (PHCachingImageManager.default() as! PHCachingImageManager).startCachingImages(for: data, targetSize: targetSize, contentMode: .default, options: option)
+            
+            break;
+        case .cancelPrefetchForData(_):
+            break;
+        }
+    }
+    
+    
+    private func cellNumber() -> CGFloat {
+        guard let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene, windowScene.activationState == .foregroundActive || windowScene.activationState == .background, let _ = windowScene.windows.first else { return 3.0 }
+        
+        if windowScene.interfaceOrientation == .landscapeLeft || windowScene.interfaceOrientation == .landscapeRight {
+            if UIDevice.current.type == .iPad {
+                return 7.0
+            } else {
+                return 6.0
+            }
+        } else {
+            if UIDevice.current.type == .iPad {
+                return 5.0
+            } else {
+                return 3.0
+            }
+        }
+    }
+    
+    private var layout: ASCollectionLayout<Int> {
+        ASCollectionLayout(scrollDirection: .vertical, interSectionSpacing: 0) {
+            ASCollectionLayoutSection {
+                let fractionalWidth = 1 / self.cellNumber()
+                let gridBlockSize = NSCollectionLayoutDimension.fractionalWidth(fractionalWidth)
+                let item = NSCollectionLayoutItem(
+                    layoutSize: NSCollectionLayoutSize(
+                        widthDimension: gridBlockSize,
+                        heightDimension: .fractionalHeight(1.0)))
+                let inset = CGFloat(1)
+                item.contentInsets = NSDirectionalEdgeInsets(top: inset, leading: inset, bottom: inset, trailing: inset)
+                
+                let itemsGroup = NSCollectionLayoutGroup.horizontal(
+                    layoutSize: NSCollectionLayoutSize(
+                        widthDimension: .fractionalWidth(1.0),
+                        heightDimension: gridBlockSize),
+                    subitems: [item])
+                
+                let section = NSCollectionLayoutSection(group: itemsGroup)
+                return section
+            }
+        }
     }
 }
+
 
 struct ABAlbumView_Previews: PreviewProvider {
     static let albumViewModel = ABAlbumViewModel()
@@ -240,7 +261,6 @@ struct ABAlbumView_Previews: PreviewProvider {
             .onAppear{
                 albumViewModel.isAuthorized = true
             }
-            
             NavigationView {
                 ABAlbumView()
             }
