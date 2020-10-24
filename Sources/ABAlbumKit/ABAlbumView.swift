@@ -41,12 +41,9 @@ public struct ABAlbumView: View {
             ZStack(alignment: .top) {
                 self.gridView
                     .onReceive(self.albumViewModel.$selectedAlbumIndex) { index in
-                        DispatchQueue.main.async {
-                            self.assets = self.albumViewModel.getPhotoAssetsFromSelectedAlbum()
-                            self.showsAlbumList = false
-                        }
+                        self.assets = self.albumViewModel.getPhotoAssetsFromSelectedAlbum()
+                        self.showsAlbumList = false
                     }
-                
                 self.maskView
                 ABAlbumListView()
                     .frame(width: geometry.size.width, height: geometry.size.height * 0.75, alignment: .center)

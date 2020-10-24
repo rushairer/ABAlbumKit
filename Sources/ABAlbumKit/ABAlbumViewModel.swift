@@ -17,7 +17,7 @@ public final class ABAlbumViewModel: ObservableObject {
             if self.mediaType != PHAssetMediaType.unknown {
                 option.predicate = NSPredicate(format: "mediaType == %ld", PHAssetMediaType.image.rawValue)
             }
-            option.sortDescriptors = [NSSortDescriptor(key: "creationDate", ascending: true)]
+            option.sortDescriptors = [NSSortDescriptor(key: "creationDate", ascending: false)]
             
             return option
         }
@@ -117,9 +117,9 @@ public final class ABAlbumViewModel: ObservableObject {
                 option.isNetworkAccessAllowed = true
                 
                 (PHCachingImageManager.default() as! PHCachingImageManager).allowsCachingHighQualityImages = false
-                (PHCachingImageManager.default() as! PHCachingImageManager).startCachingImages(for: [result.lastObject!], targetSize: targetSize, contentMode: .default, options: option)
+                (PHCachingImageManager.default() as! PHCachingImageManager).startCachingImages(for: [result.firstObject!], targetSize: targetSize, contentMode: .default, options: option)
                 
-                let imageRequestID = PHCachingImageManager.default().requestImage(for: result.lastObject!, targetSize: targetSize, contentMode: .default, options: option) { image, info in
+                let imageRequestID = PHCachingImageManager.default().requestImage(for: result.firstObject!, targetSize: targetSize, contentMode: .default, options: option) { image, info in
                     album.coverImage = image?.cgImage
                 }
                 
