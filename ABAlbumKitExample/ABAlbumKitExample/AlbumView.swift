@@ -10,9 +10,8 @@ import ABAlbumKit
 
 struct AlbumView: View {
     @Environment(\.presentationMode) var presentationMode: Binding<PresentationMode>
-    
-    private var albumViewModel = ABAlbumViewModel()
-    
+    @EnvironmentObject var albumViewModel: ABAlbumViewModel
+
     public init() {
         print("Init AlbumView")
     }
@@ -54,7 +53,6 @@ struct AlbumView: View {
                         print(asset.localIdentifier)
                     })
         .navigationBarBackButtonHidden(true)
-        .environmentObject(self.albumViewModel)
     }
     
 }
