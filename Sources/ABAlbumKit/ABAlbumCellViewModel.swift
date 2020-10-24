@@ -13,7 +13,7 @@ let ABAlbumCellViewModelWorkQueueLabel = "ABAlbumCellViewModel.Work"
 public final class ABAlbumCellViewModel: ObservableObject {
     
     @Published var asset: PHAsset
-    @Published var coverImage: CGImage = UIImage(systemName: "photo.fill")!.cgImage!
+    @Published var coverImage: CGImage?// = UIImage(systemName: "photo.fill")!.cgImage!
     private var imageRequestID = PHImageRequestID(0)
     
     var representedAssetIdentifier = ""
@@ -36,7 +36,7 @@ public final class ABAlbumCellViewModel: ObservableObject {
             let imageRequestID = PHCachingImageManager.default().requestImage(for: self.asset, targetSize: targetSize, contentMode: .default, options: option) { image, info in
                 if self.representedAssetIdentifier == self.asset.localIdentifier {
                     DispatchQueue.main.async {
-                        self.coverImage = (image?.cgImage)!
+                        self.coverImage = image?.cgImage
                     }
                 } else {
                     PHCachingImageManager.default().cancelImageRequest(self.imageRequestID)
